@@ -1,0 +1,3 @@
+[submodule "HeuGreedy-MISP"]
+	path = HeuGreedy-MISP
+	url = https://github.com/Keyteer/Heur-sticas-Greedy-para-el-MISP.git
