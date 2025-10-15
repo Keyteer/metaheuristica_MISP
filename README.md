@@ -1,1 +1,1 @@
-# Metaheuristica para Maximum Independent Set Problem
+# Metaheuristics for Maximum Independent Set Problem
