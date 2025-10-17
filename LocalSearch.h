@@ -45,18 +45,3 @@ bool localSearch(int *solution, int &solution_size, NeighList *nl, int n) {
     delete[] inSolution;
     return improved;
 }
-
-// Perturbation: randomly remove k nodes from solution
-void perturbation(int *solution, int &solution_size, int perturbation_factor) {
-
-    // Determine number of nodes to remove
-    int k = perturbation_factor % solution_size;
-
-    // Randomly select k nodes to remove
-    for (int i = 0; i < k; i++) {
-        int idx = rand() % solution_size;
-        // Remove node at idx by swapping with last element
-        solution[idx] = solution[solution_size - 1];
-        solution_size--;
-    }
-}
