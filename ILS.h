@@ -14,7 +14,7 @@
 // time_limit [in]:          time limit in seconds
 // perturbation_factor [in]: fraction of nodes to remove in perturbation
 // returns:                  size of best MISP found
-int iteratedLocalSearch(NeighList *nl, double time_limit, float perturbation_factor) {
+int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_factor) {
     int n = nl->n;
     int *current_solution = new int[n];
     int *best_solution = new int[n];
@@ -59,7 +59,7 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, float perturbation_fac
         localSearch(current_solution, current_size, nl, n);
         
         // Acceptance criterion: accept if better or equal
-        if (current_size < best_size - perturbation_factor) {
+        if (current_size < best_size - (perturbation_factor % current_size)) {
             // If solution is too bad, restart from best
             memcpy(current_solution, best_solution, best_size * sizeof(int));
             current_size = best_size;

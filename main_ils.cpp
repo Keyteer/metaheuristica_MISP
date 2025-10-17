@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     // Default parameters
     char *path = nullptr;
     double time_limit = 10.0; // default time limit seconds
-    float perturbation_factor = 0.2; // default perturbation factor
+    int perturbation_factor = 20; // default perturbation factor
 
     // Parse command line arguments
     for (int i = 1; i < argc; i++) {
