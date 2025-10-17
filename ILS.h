@@ -65,7 +65,7 @@ void copySolution(MISP_Solution *source, MISP_Solution *dest) {
 // time_limit [in]:          time limit in seconds
 // perturbation_factor [in]: number of nodes to remove in perturbation
 // returns:                  size of best MISP found
-int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_factor) {
+int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_factor, int *iterations=nullptr) {
     // Create MISP solution structures
     MISP_Solution *current_solution = new MISP_Solution(nl);
     MISP_Solution *best_solution = new MISP_Solution(nl);
@@ -86,7 +86,7 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
     // Copy to best solution
     copySolution(current_solution, best_solution);
 
-    int iterations = 0;
+    int iter_count = 0;
     int improvements = 0;
     int LocalSearchImprovements = 0;
 
@@ -96,7 +96,7 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
         auto current_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = current_time - start_time;
         if (elapsed.count() >= time_limit) {
-            printf("\nTotal Iterations: %d, Improvements: %d, Local Search Improvements: %d\n", iterations, improvements, LocalSearchImprovements);
+            // printf("\nTotal Iterations: %d, Improvements: %d, Local Search Improvements: %d\n", iter_count, improvements, LocalSearchImprovements);
             break;
         }
 
@@ -115,7 +115,12 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
 
         // std::cout << current_solution->size << " ";
 
-        iterations++;
+        iter_count++;
+    }
+
+    // Store iteration count if pointer provided
+    if (iterations != nullptr) {
+        *iterations = iter_count;
     }
 
     int best_size = best_solution->size;

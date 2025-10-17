@@ -55,9 +55,9 @@ int main(int argc, char *argv[]) {
     if (path == nullptr) {
         fprintf(stderr, "Usage: %s -i <path> [-t <time_limit_seconds>] [-p <perturbation>]\n", argv[0]);
         fprintf(stderr, "\nParameters:\n");
-        fprintf(stderr, "  -i <path>        : Path to the graph instance/s file/directory (required)\n");
-        fprintf(stderr, "  -t <time_limit_seconds>   : Maximum execution time in seconds (default: %.2f)\n", time_limit);
-        fprintf(stderr, "  -p <perturbation_factor>    : Fraction of nodes to remove in perturbation step (default: %d)\n", perturbation_factor);
+        fprintf(stderr, "  -i <path>                    : Path to the graph instance/s file/directory (required)\n");
+        fprintf(stderr, "  -t <time_limit_seconds>      : Maximum execution time in seconds (default: %.2f)\n", time_limit);
+        fprintf(stderr, "  -p <perturbation_factor>     : Fraction of nodes to remove in perturbation step (default: %d)\n", perturbation_factor);
         return 1;
     }
 
@@ -104,13 +104,15 @@ int main(int argc, char *argv[]) {
 
 
     // print csv header
-    printf("Density,Tests,Avg_MISP_Size\n");
+    printf("Density,Tests,Avg_MISP_Size,Avg_Time(s),Avg_Iterations\n");
 
 
     // variables
     int lastDensityDecimal = 0;
     int tests = 0;
     double avgResult = 0.0;
+    double avgTime = 0.0;
+    double avgIterations = 0.0;
 
 
     for (int i = 0; i < fileCount; i++) {
@@ -127,6 +129,8 @@ int main(int argc, char *argv[]) {
             lastDensityDecimal = currentDensityDecimal;
             if (i != 0) {
                 avgResult = 0.0;
+                avgTime = 0.0;
+                avgIterations = 0.0;
                 tests = 0;
                 printf("\n");
             }
@@ -139,14 +143,23 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        // Run ILS
-        int misp_size = iteratedLocalSearch(nl, time_limit, perturbation_factor);
+        int iterations;
+
+        // Run ILS and measure time
+        auto start = std::chrono::high_resolution_clock::now();
+        int misp_size = iteratedLocalSearch(nl, time_limit, perturbation_factor, &iterations);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        double execution_time = elapsed.count();
 
         // accumulate results pondered by number of tests
-        avgResult = (avgResult * tests + misp_size) / ++tests;
+        avgResult = (avgResult * tests + misp_size) / (tests + 1);
+        avgTime = (avgTime * tests + execution_time) / (tests + 1);
+        avgIterations = (avgIterations * tests + iterations) / (tests + 1);
+        tests++;
 
         // print current average results
-        printf("\r0.%d,%d,%f   ", currentDensityDecimal, tests, avgResult);
+        printf("\r0.%d,%d,%.2f,%.4f,%.0f   ", currentDensityDecimal, tests, avgResult, avgTime, avgIterations);
         fflush(stdout);
 
         // Cleanup
