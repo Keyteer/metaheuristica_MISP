@@ -108,7 +108,7 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
         auto current_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = current_time - start_time;
         if (elapsed.count() >= time_limit) {
-            printf("\nTotal Iterations: %d, Improvements: %d, Local Search Improvements: %d\n", iterations, improvements, LocalSearcheImprovements);
+            // printf("\nTotal Iterations: %d, Improvements: %d, Local Search Improvements: %d\n", iterations, improvements, LocalSearcheImprovements);
             break;
         }
 

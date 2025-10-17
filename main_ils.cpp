@@ -19,7 +19,7 @@ int filterFiles(char **fileNames, int fileCount) {
 
             // selecting files with correct nomenclature and density [0.1, 0.2, ... , 0.9]
             char densStr[10];
-            sprintf(densStr, "p0c0.%d_", i + 1);
+            sprintf(densStr, "p0c0.%d_", i);
             if (strstr(fileNames[j], densStr) != nullptr) {
 
                 // Swap to front
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
 
     // print csv header
-    printf("Density,Avg_MISP_Size\n");
+    printf("Density,Tests,Avg_MISP_Size\n");
 
 
     // variables
@@ -123,11 +123,13 @@ int main(int argc, char *argv[]) {
         // check density, if new density reset counters and print newline
         int currentDensityDecimal;
         sscanf(file, "%*[^.].%d_", &currentDensityDecimal);
-        if (currentDensityDecimal != lastDensityDecimal && i != 0) {
+        if (currentDensityDecimal != lastDensityDecimal) {
             lastDensityDecimal = currentDensityDecimal;
-            avgResult = 0.0;
-            tests = 0;
-            printf("\n");
+            if (i != 0) {
+                avgResult = 0.0;
+                tests = 0;
+                printf("\n");
+            }
         }
 
         // Load graph
@@ -144,7 +146,8 @@ int main(int argc, char *argv[]) {
         avgResult = (avgResult * tests + misp_size) / ++tests;
 
         // print current average results
-        printf("\r0.%d,%f   ", currentDensityDecimal, avgResult);
+        printf("\r0.%d,%d,%f   ", currentDensityDecimal, tests, avgResult);
+        fflush(stdout);
 
         // Cleanup
         delete nl;
