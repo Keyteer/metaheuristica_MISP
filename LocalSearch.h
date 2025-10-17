@@ -3,45 +3,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
-#include "HeuGreedy-MISP/NeighList.h"
+#include "utils.h"
 
-// Check if a node can be added to the independent set
-bool canAddNode(int node, int *solution, int solution_size, NeighList *nl) {
-    for (int i = 0; i < solution_size; i++) {
-        int v = solution[i];
-        // Check if node is adjacent to any node in current solution
-        struct Neighbor *neighbor = nl->neighborhoods[v];
-        while (neighbor != nullptr) {
-            if (neighbor->node == node) {
-                return false;
-            }
-            neighbor = neighbor->next;
-        }
-    }
-    return true;
-}
-
-// Local Search: Try to improve solution by swapping nodes
+// Local Search: Try to improve solution by adding independent nodes
 // Returns true if improvement was made
-bool localSearch(int *solution, int &solution_size, NeighList *nl, int n) {
+bool localSearch(MISP_Solution *sol) {
     bool improved = false;
-    bool *inSolution = new bool[n];
+    int best_size = sol->size;
 
-    // Mark nodes in solution
-    memset(inSolution, false, n * sizeof(bool));
-    for (int i = 0; i < solution_size; i++) {
-        inSolution[solution[i]] = true;
-    }
-
-    // Try to add nodes not in solution
-    for (int node = 0; node < n; node++) {
-        if (!inSolution[node] && canAddNode(node, solution, solution_size, nl)) {
-            solution[solution_size++] = node;
-            inSolution[node] = true;
-            improved = true;
+    // Try to make a 2 for 1 swap
+    for (int node = 0; node < sol->graph->n; node++) {
+        if (sol->MISP_Independent[node]) {
+            // Find a node in the solution to remove
+            for (int i = 0; i < sol->size; i++) {
+                int removed = sol->solution[i];
+                sol->removeNode(removed);
+                sol->addNode(node);
+                if (sol->size > best_size) {
+                    best_size = sol->size;
+                    improved = true;
+                }
+                sol->removeNode(node);
+                sol->addNode(removed);
+            }
         }
     }
 
-    delete[] inSolution;
     return improved;
 }

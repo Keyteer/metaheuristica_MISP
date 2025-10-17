@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "\nParameters:\n");
         fprintf(stderr, "  -i <path>        : Path to the graph instance/s file/directory (required)\n");
         fprintf(stderr, "  -t <time_limit_seconds>   : Maximum execution time in seconds (default: %.2f)\n", time_limit);
-        fprintf(stderr, "  -p <perturbation_factor>    : Fraction of nodes to remove in perturbation step (default: %.2f)\n", perturbation_factor);
+        fprintf(stderr, "  -p <perturbation_factor>    : Fraction of nodes to remove in perturbation step (default: %d)\n", perturbation_factor);
         return 1;
     }
 
