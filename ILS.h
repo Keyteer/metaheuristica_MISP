@@ -29,8 +29,6 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_size 
     current_size = greedy(n, nl, current_solution);
     copySolution(current_solution, current_size, best_solution, best_size);
     
-    printf("Initial solution size: %d\n", best_size);
-    
     int iterations = 0;
     int improvements = 0;
     
@@ -50,8 +48,6 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_size 
         if (current_size > best_size) {
             copySolution(current_solution, current_size, best_solution, best_size);
             improvements++;
-            printf("Iteration %d: New best solution found: %d (time: %.2fs)\n", 
-                   iterations, best_size, elapsed.count());
         }
         
         // Perturbation
@@ -70,11 +66,6 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_size 
         
         iterations++;
     }
-    
-    printf("\nFinal Results:\n");
-    printf("Total iterations: %d\n", iterations);
-    printf("Improvements: %d\n", improvements);
-    printf("Best MISP size: %d\n", best_size);
     
     // Copy best solution to current_solution for output
     copySolution(best_solution, best_size, current_solution, current_size);
