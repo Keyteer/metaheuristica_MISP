@@ -3,62 +3,64 @@
 #include <cstring>
 #include "HeuGreedy-MISP/NeighList.h"
 
+
 struct MISP_Solution {
     NeighList *graph;
     int size;
     int *solution;
-    bool *MISP_Independent;
-    
+    int *MISP_IndependentDegree;
+
     MISP_Solution(NeighList *nl) {
         graph = nl;
         size = 0;
         solution = new int[nl->n];
-        MISP_Independent = new bool[nl->n];
-        memset(MISP_Independent, true, nl->n * sizeof(bool));
+        MISP_IndependentDegree = new int[nl->n];
+        memset(MISP_IndependentDegree, 0, nl->n * sizeof(int));
     }
     MISP_Solution(NeighList *nl, int *nodes, int sz) {
         graph = nl;
         size = 0;
         solution = new int[nl->n];
-        MISP_Independent = new bool[nl->n];
-        memset(MISP_Independent, true, nl->n * sizeof(bool));
-        
+        MISP_IndependentDegree = new int[nl->n];
+        memset(MISP_IndependentDegree, 0, nl->n * sizeof(int));
+
         // Add nodes to solution
         for (int i = 0; i < sz; i++) {
             addNode(nodes[i]);
         }
     }
     ~MISP_Solution() {
-        delete[] MISP_Independent;
+        delete[] MISP_IndependentDegree;
         delete[] solution;
     }
 
     void addNode(int node) {
+        if (MISP_IndependentDegree[node] > 0) {
+            std::cerr << "Error: Trying to add a non-independent node" << node << "to MISP_Solution";
+            return;
+        }
+
         solution[size++] = node;
-        MISP_Independent[node] = false;
+        MISP_IndependentDegree[node] = -1;
         for (Neighbor *N = graph->neighborhoods[node]; N != nullptr; N = N->next) {
-            MISP_Independent[N->node] = false;
+            MISP_IndependentDegree[N->node] += 1;
         }
     }
     void removeNode(int node) {
         // Find and remove node from solution
-        for (int i = 0; i < size; i++) {
-            if (solution[i] == node) {
-                solution[i] = solution[--size];
-                break;
-            }
+        int *found = std::find(solution, solution + size, node);
+        if (found < solution + size) {
+            // Node found, remove it
+            *found = solution[--size];
+        } else {
+            std::cerr << "Error: Trying to remove a non-existing node" << node << "from MISP_Solution";
+            return;
         }
-        MISP_Independent[node] = true;
+
+        MISP_IndependentDegree[node] = 0;
         // Re-evaluate independence of neighbors
         for (Neighbor *N = graph->neighborhoods[node]; N != nullptr; N = N->next) {
-            bool independent = true;
-            for (int j = 0; j < size; j++) {
-                if (solution[j] == N->node) {
-                    independent = false;
-                    break;
-                }
-            }
-            MISP_Independent[N->node] = independent;
+            MISP_IndependentDegree[N->node] -= 1;
         }
     }
 };

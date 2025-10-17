@@ -23,20 +23,7 @@ void perturbation(MISP_Solution *sol, int perturbation_factor) {
         int idx = rand() % sol->size;
         removedNodes[i] = sol->solution[idx];
 
-        // Remove node at idx by replacing with last element
-        sol->solution[idx] = sol->solution[sol->size - 1];
-        sol->size--;
-    }
-
-    // Reset MISP_Independent array based on current solution
-    memset(sol->MISP_Independent, true, sol->graph->n * sizeof(bool));
-    for (int i = 0; i < sol->size; i++) {
-        int node = sol->solution[i];
-        sol->MISP_Independent[node] = false;
-        // Mark neighbors as not independent
-        for (Neighbor *N = sol->graph->neighborhoods[node]; N != nullptr; N = N->next) {
-            sol->MISP_Independent[N->node] = false;
-        }
+        // Remove node from solution
     }
 
 
@@ -47,14 +34,14 @@ void perturbation(MISP_Solution *sol, int perturbation_factor) {
     // Prioritize adding nodes that weren't in the initial solution
     for (int node = 0; node < sol->graph->n; node++) {
         if (std::find(removedNodes, removedNodes + k, node) == removedNodes + k
-            && sol->MISP_Independent[node]) {
+            && sol->MISP_IndependentDegree[node] == 0) {
             sol->addNode(node);
         }
     }
     // Fill remaining capacity from removed nodes
     for (int i = 0; i < k; i++) {
         int node = removedNodes[i];
-        if (sol->MISP_Independent[node]) {
+        if (sol->MISP_IndependentDegree[node] == 0) {
             sol->addNode(node);
         }
     }
@@ -69,7 +56,7 @@ void perturbation(MISP_Solution *sol, int perturbation_factor) {
 void copySolution(MISP_Solution *source, MISP_Solution *dest) {
     dest->size = source->size;
     memcpy(dest->solution, source->solution, source->size * sizeof(int));
-    memcpy(dest->MISP_Independent, source->MISP_Independent, source->graph->n * sizeof(bool));
+    memcpy(dest->MISP_IndependentDegree, source->MISP_IndependentDegree, source->graph->n * sizeof(bool));
 }
 
 // Iterated Local Search for MISP
@@ -100,7 +87,7 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
 
     int iterations = 0;
     int improvements = 0;
-    int LocalSearcheImprovements = 0;
+    int LocalSearchImprovements = 0;
 
     // Main ILS loop
     while (true) {
@@ -108,7 +95,7 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
         auto current_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = current_time - start_time;
         if (elapsed.count() >= time_limit) {
-            // printf("\nTotal Iterations: %d, Improvements: %d, Local Search Improvements: %d\n", iterations, improvements, LocalSearcheImprovements);
+            printf("\nTotal Iterations: %d, Improvements: %d, Local Search Improvements: %d\n", iterations, improvements, LocalSearchImprovements);
             break;
         }
 
@@ -117,7 +104,7 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
 
         // Local search on current solution
         if(localSearch(current_solution)) {
-
+            LocalSearchImprovements++;
         }
 
         // Update best solution if improved
