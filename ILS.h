@@ -24,6 +24,7 @@ void perturbation(MISP_Solution *sol, int perturbation_factor) {
         removedNodes[i] = sol->solution[idx];
 
         // Remove node from solution
+        sol->removeNode(removedNodes[i]);
     }
 
 
@@ -103,9 +104,8 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
         perturbation(current_solution, perturbation_factor);
 
         // Local search on current solution
-        if(localSearch(current_solution)) {
-            LocalSearchImprovements++;
-        }
+        if (localSearch(current_solution)) LocalSearchImprovements++;
+
 
         // Update best solution if improved
         if (current_solution->size > best_solution->size) {

@@ -33,5 +33,9 @@ bool localSearch(MISP_Solution *sol, bool strafe = false) {
         }
     }
 
+    if (sol->size > best_size) {
+        improved = true;
+    }
+
     return improved;
 }
