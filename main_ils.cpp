@@ -122,8 +122,7 @@ int main(int argc, char *argv[]) {
 
         // check density, if new density reset counters and print newline
         int currentDensityDecimal;
-        printf("sscanf: %d\n",
-        sscanf(file, "%*[^.].%d_", &currentDensityDecimal));
+        sscanf(file, "%*[^.].%d_", &currentDensityDecimal);
         if (currentDensityDecimal != lastDensityDecimal && i != 0) {
             lastDensityDecimal = currentDensityDecimal;
             avgResult = 0.0;

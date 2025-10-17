@@ -4,20 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <chrono>
+#include <cstring>
 #include "HeuGreedy-MISP/greedy.h"
 #include "HeuGreedy-MISP/NeighList.h"
 #include "LocalSearch.h"
 
 // Iterated Local Search for MISP
-// nl [in]:              neighborhood list
-// time_limit [in]:      time limit in seconds
-// perturbation_size [in]: number of nodes to remove in perturbation
-// returns:              size of best MISP found
-int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_size = 3) {
+// nl [in]:                  neighborhood list
+// time_limit [in]:          time limit in seconds
+// perturbation_factor [in]: fraction of nodes to remove in perturbation
+// returns:                  size of best MISP found
+int iteratedLocalSearch(NeighList *nl, double time_limit, float perturbation_factor) {
     int n = nl->n;
     int *current_solution = new int[n];
     int *best_solution = new int[n];
-    int *temp_solution = new int[n];
     
     int current_size = 0;
     int best_size = 0;
@@ -27,8 +27,9 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_size 
     
     // Generate initial solution using greedy
     current_size = greedy(n, nl, current_solution);
-    copySolution(current_solution, current_size, best_solution, best_size);
-    
+    memcpy(best_solution, current_solution, current_size * sizeof(int));
+    best_size = current_size;
+
     int iterations = 0;
     int improvements = 0;
     
@@ -46,32 +47,30 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_size 
         
         // Update best solution if improved
         if (current_size > best_size) {
-            copySolution(current_solution, current_size, best_solution, best_size);
+            memcpy(best_solution, current_solution, current_size * sizeof(int));
+            best_size = current_size;
             improvements++;
         }
         
         // Perturbation
-        copySolution(current_solution, current_size, temp_solution, current_size);
-        perturbation(current_solution, current_size, perturbation_size);
+        perturbation(current_solution, current_size, perturbation_factor);
         
         // Reconstruct after perturbation using local search
         localSearch(current_solution, current_size, nl, n);
         
         // Acceptance criterion: accept if better or equal
-        if (current_size < best_size - perturbation_size) {
+        if (current_size < best_size - perturbation_factor) {
             // If solution is too bad, restart from best
-            copySolution(best_solution, best_size, current_solution, current_size);
-            perturbation(current_solution, current_size, perturbation_size);
+            memcpy(current_solution, best_solution, best_size * sizeof(int));
+            current_size = best_size;
+            perturbation(current_solution, current_size, perturbation_factor);
         }
         
         iterations++;
     }
     
-    // Copy best solution to current_solution for output
-    copySolution(best_solution, best_size, current_solution, current_size);
-    
-    delete[] temp_solution;
     delete[] best_solution;
+    delete[] current_solution;
     
     return best_size;
 }
