@@ -6,9 +6,8 @@
 #include "utils.h"
 
 // Local Search: Try to improve solution by adding independent nodes
-// strafe: Do 1 for 1 swaps
 // Returns true if improvement was made
-bool localSearch(MISP_Solution *sol, bool strafe = false) {
+bool localSearch(MISP_Solution *sol) {
     bool improved = false;
     int best_size = sol->size;
 
@@ -22,7 +21,7 @@ bool localSearch(MISP_Solution *sol, bool strafe = false) {
                 addableNeighbors[addableNeighbors_count++] = N->node;
             }
         }
-        if (addableNeighbors_count > 1 || (strafe && addableNeighbors_count == 1)) {
+        if (addableNeighbors_count > 1 ) {
             // Found a candidate for swap
             sol->removeNode(curr_node);
             for (int j = 0; j < addableNeighbors_count; j++) {

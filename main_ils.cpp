@@ -86,20 +86,19 @@ int main(int argc, char *argv[]) {
         }
     } else {
         // single file case
-        // remove fileName from path and store it in fileNames[0]
-        fileNames = (char **)malloc(1 * sizeof(char *));
+        // Run single file with verbose parameter
 
-        char *base = strstr(path, "/erdos");
-        if (base == nullptr) {
-            fprintf(stderr, "Error: File name does not follow naming convention\n");
+        NeighList *nl = loadGraph(path);
+        if (nl == nullptr) {
+            fprintf(stderr, "Error: Could not load graph from file: %s\n", path);
             return 1;
         }
 
-        base++[0] = '\0'; // null-terminate path and increment pointer to skip '/'
-        fileNames[0] = (char *)malloc(strlen(base) + 1 * sizeof(char));
-        strcpy(fileNames[0], base);
+        iteratedLocalSearch(nl, time_limit, perturbation_factor, nullptr, true);
 
-        fileCount = 1;
+        delete nl;
+
+        return 0;
     }
 
 

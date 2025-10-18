@@ -27,10 +27,6 @@ void perturbation(MISP_Solution *sol, int perturbation_factor) {
         sol->removeNode(removedNodes[i]);
     }
 
-
-    // std::cout << sol->size << " ";
-
-
     // Reconstruct solution after perturbation
     // Prioritize adding nodes that weren't in the initial solution
     for (int node = 0; node < sol->graph->n; node++) {
@@ -46,10 +42,6 @@ void perturbation(MISP_Solution *sol, int perturbation_factor) {
             sol->addNode(node);
         }
     }
-
-
-    // std::cout << sol->size << " ";
-
     delete[] removedNodes;
 }
 
@@ -65,7 +57,7 @@ void copySolution(MISP_Solution *source, MISP_Solution *dest) {
 // time_limit [in]:          time limit in seconds
 // perturbation_factor [in]: number of nodes to remove in perturbation
 // returns:                  size of best MISP found
-int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_factor, int *iterations=nullptr) {
+int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_factor, int *iterations = nullptr, bool verbose = false) {
     // Create MISP solution structures
     MISP_Solution *current_solution = new MISP_Solution(nl);
     MISP_Solution *best_solution = new MISP_Solution(nl);
@@ -90,13 +82,17 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
     int improvements = 0;
     int LocalSearchImprovements = 0;
 
+    if (verbose) std::cout << "Initial solution size: " << best_solution->size << std::endl;
+
     // Main ILS loop
     while (true) {
         // Check time limit
         auto current_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = current_time - start_time;
         if (elapsed.count() >= time_limit) {
-            // printf("\nTotal Iterations: %d, Improvements: %d, Local Search Improvements: %d\n", iter_count, improvements, LocalSearchImprovements);
+
+            if (verbose) std::cout << "Time limit reached. Ending ILS." << std::endl;
+
             break;
         }
 
@@ -111,10 +107,11 @@ int iteratedLocalSearch(NeighList *nl, double time_limit, int perturbation_facto
         if (current_solution->size > best_solution->size) {
             copySolution(current_solution, best_solution);
             improvements++;
+
+            if (verbose) std::cout << "New best solution size: " << best_solution->size
+                << " at iteration " << iter_count
+                << " time: " << elapsed.count() << "s" << std::endl;
         }
-
-        // std::cout << current_solution->size << " ";
-
         iter_count++;
     }
 

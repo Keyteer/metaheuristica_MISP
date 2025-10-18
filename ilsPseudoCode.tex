@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[spanish,ruled,vlined]{algorithm2e}
+
+\title{pseudoCode ILS}
+\author{Pedro Ignacio Palacios Rossi}
+\date{September 2025}
+
+\begin{document}
+
+\begin{algorithm}[H]
+\caption{Algoritmo ILS (Iterated Local Search) para el MISP}
+\KwIn{$n$ : n\'umero de nodos, $nl$ : lista de vecindad, $t$ : tiempo m\'aximo (s), $p$ : factor de perturbaci\'on (\%)}
+\KwOut{$misp$ : nodos del mejor conjunto independiente encontrado}
+
+$best \gets \emptyset;\; misp \gets \emptyset$\;
+$start \gets tiempoActual()$\;
+
+$misp \gets greedy(n, nl)$\;
+$best \gets misp$\;
+
+\While{$tiempoActual() - start < t$}{
+  $S' \gets perturbar(misp, p)$\;
+  $S'' \gets busquedaLocal(S', nl)$\;
+  \If{$|S''| > |best|$}{
+    $best \gets S''$\;
+  }
+}
+
+\Return{$|best|$}\;
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Operación de perturbación para el MISP}
+\KwIn{$misp$ : conjunto independiente actual, $p$ : factor de perturbación (\%), $nl$ : lista de vecindad}
+\KwOut{$S'$ : conjunto perturbado y restaurado}
+
+$k \gets |misp| \cdot p / 100 $\;
+$S' \gets misp$\;
+$removidos \gets \emptyset$\;
+
+\For{$i \gets 1$ \KwTo $k$}{
+  $node \gets$ nodoAleatorio($S'$)\;
+  eliminar $node$ de $S'$\;
+  agregar $node$ a $removidos$\;
+}
+
+\ForEach{$v \in V \setminus (S' \cup removidos)$}{
+  \If{$v$ es independiente de $S'$}{
+    agregar $v$ a $S'$\;
+  }
+}
+
+\ForEach{$v \in removidos$}{
+  \If{$v$ es independiente de $S'$}{
+    agregar $v$ a $S'$\;
+  }
+}
+
+\Return{$S'$}\;
+\end{algorithm}
+
+\end{document}
