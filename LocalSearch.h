@@ -16,9 +16,9 @@ bool localSearch(MISP_Solution *sol) {
         int curr_node = sol->solution[i];
         int addableNeighbors_count = 0;
         int addableNeighbors[sol->graph->degrees[curr_node]];
-        for (Neighbor *N = sol->graph->neighborhoods[curr_node]; N != nullptr; N = N->next) {
-            if (sol->MISP_IndependentDegree[N->node] == 1) {
-                addableNeighbors[addableNeighbors_count++] = N->node;
+        for (int neighbor : sol->graph->neighborhoods[curr_node]) {
+            if (sol->MISP_IndependentDegree[neighbor] == 1) {
+                addableNeighbors[addableNeighbors_count++] = neighbor;
             }
         }
         if (addableNeighbors_count > 1 ) {

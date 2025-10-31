@@ -42,8 +42,8 @@ struct MISP_Solution {
 
         solution[size++] = node;
         MISP_IndependentDegree[node] = -1;
-        for (Neighbor *N = graph->neighborhoods[node]; N != nullptr; N = N->next) {
-            MISP_IndependentDegree[N->node] += 1;
+        for (int neighbor : graph->neighborhoods[node]) {
+            MISP_IndependentDegree[neighbor] += 1;
         }
     }
     void removeNode(int node) {
@@ -59,8 +59,8 @@ struct MISP_Solution {
 
         MISP_IndependentDegree[node] = 0;
         // Re-evaluate independence of neighbors
-        for (Neighbor *N = graph->neighborhoods[node]; N != nullptr; N = N->next) {
-            MISP_IndependentDegree[N->node] -= 1;
+        for (int neighbor : graph->neighborhoods[node]) {
+            MISP_IndependentDegree[neighbor] -= 1;
         }
     }
 };
