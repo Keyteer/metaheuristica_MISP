@@ -39,26 +39,35 @@ int main(int argc, char *argv[]) {
     char *path = nullptr;
     double time_limit = 10.0; // default time limit seconds
     int perturbation_factor = 20; // default perturbation factor
+    bool tuning = false;
 
-    // Parse command line arguments
+    // Parse required command line arguments
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-i") == 0 && i + 1 < argc) {
             path = argv[++i];
-        } else if (strcmp(argv[i], "-t") == 0 && i + 1 < argc) {
-            time_limit = atof(argv[++i]);
-        } else if (strcmp(argv[i], "-p") == 0 && i + 1 < argc) {
-            perturbation_factor = atof(argv[++i]);
         }
     }
 
     // Validate parameters
     if (path == nullptr) {
-        fprintf(stderr, "Usage: %s -i <path> [-t <time_limit_seconds>] [-p <perturbation>]\n", argv[0]);
+        fprintf(stderr, "Usage: %s -i <path> [-t <time_limit_seconds>] [-p <perturbation>] [--tuning]\n", argv[0]);
         fprintf(stderr, "\nParameters:\n");
         fprintf(stderr, "  -i <path>                    : Path to the graph instance/s file/directory (required)\n");
         fprintf(stderr, "  -t <time_limit_seconds>      : Maximum execution time in seconds (default: %.2f)\n", time_limit);
         fprintf(stderr, "  -p <perturbation_factor>     : Fraction of nodes to remove in perturbation step (default: %d)\n", perturbation_factor);
+        fprintf(stderr, "  --tuning                     : Enable tuning mode (default: false)\n");
         return 1;
+    }
+
+    // Parse optional command line arguments
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-t") == 0 && i + 1 < argc) {
+            time_limit = atof(argv[++i]);
+        } else if (strcmp(argv[i], "-p") == 0 && i + 1 < argc) {
+            perturbation_factor = atof(argv[++i]);
+        } else if (strcmp(argv[i], "--tuning") == 0) {
+            tuning = true;
+        }
     }
 
     if (time_limit <= 0) {
@@ -86,7 +95,7 @@ int main(int argc, char *argv[]) {
         }
     } else {
         // single file case
-        // Run single file with verbose parameter
+        // Run single file with verbose parameter (unless tuning)
 
         NeighList *nl = loadGraph(path);
         if (nl == nullptr) {
@@ -94,7 +103,11 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        iteratedLocalSearch(nl, time_limit, perturbation_factor, nullptr, true);
+        if (tuning) {
+            int result = iteratedLocalSearch(nl, time_limit, perturbation_factor, nullptr, false);
+            printf("%d", -result);
+        } else
+            iteratedLocalSearch(nl, time_limit, perturbation_factor, nullptr, true);
 
         delete nl;
 
